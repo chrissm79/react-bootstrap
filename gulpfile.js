@@ -4,6 +4,7 @@ var concat = require('gulp-concat');
 var less = require('gulp-less');
 var uglify = require('gulp-uglify');
 var minifyCSS = require('gulp-minify-css');
+var livereload = require('gulp-livereload');
 var LessPluginAutoPrefix = require('less-plugin-autoprefix');
 
 var autoprefix = new LessPluginAutoPrefix({browsers: ["last 4 versions"]});
@@ -40,10 +41,11 @@ gulp.task('minify-css', function() {
 });
 
 gulp.task('browserify', function() {
-  gulp.src('src/js/app.js')
+  gulp.src('src/js/main.js')
     .pipe(browserify({transform: 'reactify'}))
     .pipe(concat('app.js'))
-    .pipe(gulp.dest('dist/js'));
+    .pipe(gulp.dest('dist/js'))
+    .pipe(livereload());
 });
 
 gulp.task('copy-index', function() {
@@ -69,13 +71,15 @@ gulp.task('less', function() {
     .pipe(less({
       plugins: [autoprefix]
     }))
-    .pipe(gulp.dest('dist/css'));
+    .pipe(gulp.dest('dist/css'))
+    .pipe(livereload());
 });
 
-gulp.task('default', ['lib-js', 'lib-css', 'browserify', 'copy-index', 'copy-fonts', 'copy-images']);
-gulp.task('app', ['browserify', 'copy-index', 'copy-fonts', 'copy-images']);
+gulp.task('default', ['lib-js', 'lib-css', 'browserify', 'copy-index', 'copy-fonts', 'copy-images', 'less']);
+gulp.task('app', ['browserify', 'copy-index', 'copy-fonts', 'copy-images', 'less']);
 gulp.task('build', ['uglify-js', 'minify-css']);
 
 gulp.task('watch', function() {
+  livereload.listen();
   gulp.watch('src/**/*.*', ['app']);
 });
